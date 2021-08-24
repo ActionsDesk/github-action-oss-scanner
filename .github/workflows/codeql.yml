@@ -1,0 +1,45 @@
+name: CodeQL
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '*/*.js'
+      - '.github/workflows/codeql.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '*/*.js'
+      - '.github/workflows/codeql.yml'
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+
+    permissions: read-all
+
+    env:
+      CI: true
+      LGTM_INDEX_FILTERS: 'exclude:dist/*'
+
+    strategy:
+      matrix:
+        language:
+          - javascript
+
+    steps:
+      - name: '🛎 Checkout'
+        uses: actions/checkout@v2.3.4
+
+      - name: '🛠 Initialise'
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: '📦 Build'
+        uses: github/codeql-action/autobuild@v1
+
+      - name: '🥼 Test'
+        uses: github/codeql-action/analyze@v1

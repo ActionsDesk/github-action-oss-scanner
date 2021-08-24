@@ -1,0 +1,26 @@
+name: 'github-action-oss-scanner'
+description: 'TODO'
+
+inputs:
+  token:
+    # FIXME
+    description: 'GitHub Personal Access Token (PAT) with admin:enterprise scope'
+    required: true
+  enterprise:
+    # FIXME
+    description: 'GitHub Enterprise Cloud account slug'
+    required: true
+  repository:
+    description: 'The owner and repository name to fork. For example, octocat/Hello-World'
+    required: true
+  organization:
+    description: 'GitHub organization to fork the GitHub Action repository to'
+    required: true
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'alert-octagon'
+  color: 'green'

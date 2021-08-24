@@ -1,0 +1,34 @@
+name: CodeQL OSS Scanner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2.3.4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          # __languages__ will get replaced automatically
+          languages: __languages__
+          queries: security-extended
+          config-file: ${{ github.workspace }}/.github/config/codeql-config.yml
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v1
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
