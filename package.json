@@ -30,7 +30,7 @@
   "exports": "utils/scanner.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "npx @vercel/ncc build src/index.js --out dist --license licenses.txt --quiet --minify && copyfiles -Vu 1 templates/**/* dist/templates",
+    "build": "npx @vercel/ncc build src/index.js --out dist && copyfiles -Vu 1 src/templates/**/* dist/templates",
     "format": "npx prettier --config-precedence prefer-file --write **/*.{js,cjs,json,md,yml} && eslint . --fix",
     "pretest": "npx eslint-config-prettier .eslintrc.json",
     "test": "eslint src/**/*.js",
