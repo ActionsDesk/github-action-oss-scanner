@@ -3842,19 +3842,25 @@ __nccwpck_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(186);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(622);
 // EXTERNAL MODULE: ./node_modules/@octokit/core/dist-node/index.js
 var dist_node = __nccwpck_require__(762);
 // EXTERNAL MODULE: ./node_modules/@octokit/plugin-enterprise-cloud/dist-node/index.js
 var plugin_enterprise_cloud_dist_node = __nccwpck_require__(924);
+// EXTERNAL MODULE: external "url"
+var external_url_ = __nccwpck_require__(835);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(747);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(622);
-;// CONCATENATED MODULE: ./src/utils/scanner.js
+;// CONCATENATED MODULE: ./src/scanner.js
 
 
 
 
+
+
+const scanner_filename = (0,external_url_.fileURLToPath)("file:///Users/stoe/repos/_work/github/@ActionsDesk/github-action-oss-scanner/src/scanner.js")
+const scanner_dirname = (0,external_path_.dirname)(scanner_filename)
 
 const MyOctokit = dist_node/* Octokit.plugin */.v.plugin(plugin_enterprise_cloud_dist_node/* enterpriseCloud */.k)
 const SUPPORTED_LANGS = ['go', 'javascript', 'csharp', 'python', 'cpp', 'java']
@@ -3912,10 +3918,10 @@ class ActionScanner {
       this.owner = data.owner.login
       this.repo = data.name
       this.ref = data.parent.default_branch
+
       const language = data.parent.language || undefined
       this.language = language === 'TypeScript' ? 'javascript' : language
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
     // sleep 10 seconds for async forking
@@ -3969,7 +3975,6 @@ class ActionScanner {
       )
       this.oid = oid || sha
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
   }
@@ -3981,20 +3986,19 @@ class ActionScanner {
   async addCodeQLWorkflow() {
     const {octokit, owner, oid, repo, ref, language} = this
     try {
-      const workflowTpl = 'templates/codeql-template.yml'
-      const workflowBuffer = (0,external_fs_.readFileSync)((0,external_path_.resolve)('./', workflowTpl), 'utf8')
+      const workflowTpl = 'codeql-template.tmpl'
+      const workflowBuffer = (0,external_fs_.readFileSync)(__nccwpck_require__.ab + "codeql-template.tmpl", 'utf8')
       const _content = workflowBuffer.toString('base64')
       const workflowContent = _content.replace(
-        `          # __languages__ will get replaced automatically
-            languages: __languages__
-      `,
+        `
+          languages: __languages__`,
         language && SUPPORTED_LANGS.includes(language)
-          ? `          languages: ${language}
-      `
+          ? `
+          languages: ${language}`
           : ''
       )
-      const configTpl = 'templates/codeql-config.yml'
-      const configContent = (0,external_fs_.readFileSync)((0,external_path_.resolve)('./', configTpl), 'utf8')
+      const configTpl = 'codeql-config.tmpl'
+      const configContent = (0,external_fs_.readFileSync)(__nccwpck_require__.ab + "codeql-config.tmpl", 'utf8')
 
       this.path = '.github/workflows/codeql-scanner.yml'
 
@@ -4016,7 +4020,7 @@ class ActionScanner {
               additions: [{
                 path: $workflowPath, contents: $workflow
               }, {
-                path: "github/config/codeql-config.yml", contents: $config
+                path: ".github/config/codeql-config.yml", contents: $config
               }]
             }
           }) {
@@ -4036,7 +4040,6 @@ class ActionScanner {
       // wait 5 seconds
       await this.wait(5000)
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
   }
@@ -4072,7 +4075,6 @@ class ActionScanner {
       // wait for the scanner to finish
       if (run_id > 0) await this.waitForScan(run_id)
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
   }
@@ -4155,7 +4157,7 @@ class ActionScanner {
   }
 }
 
-/* harmony default export */ const utils_scanner = (ActionScanner);
+/* harmony default export */ const src_scanner = (ActionScanner);
 
 ;// CONCATENATED MODULE: ./action.js
 
@@ -4167,7 +4169,7 @@ class ActionScanner {
     const organization = (0,core.getInput)('organization')
     const [owner, repo] = (0,core.getInput)('repository').split('/')
 
-    const scanner = new utils_scanner({token, enterprise, organization})
+    const scanner = new src_scanner({token, enterprise, organization})
 
     // make sure existing fork gets deleted
     await scanner.deleteFork({owner: organization, repo})
@@ -4193,8 +4195,9 @@ class ActionScanner {
     (0,core.endGroup)()
 
     ;(0,core.setOutput)('oss-scanner-result', JSON.stringify(alerts, null, 2))
-  } catch (error) {
-    (0,core.setFailed)(error.message)
+  } catch (err) {
+    (0,core.error)(err)
+    ;(0,core.setFailed)(err.message)
   }
 })()
 

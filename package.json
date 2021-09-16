@@ -26,13 +26,13 @@
     "node": ">=16",
     "npm": ">=7"
   },
-  "exports": "utils/scanner.js",
+  "main": "action.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "npx @vercel/ncc build action.js --out dist && copyfiles -Vu 1 src/templates/**/* dist/templates",
-    "format": "npx prettier --config-precedence prefer-file --write **/**.{js,cjs,json,md,yml} && eslint . --fix",
+    "build": "npx @vercel/ncc build action.js --out dist --license licenses.txt --quiet",
+    "format": "npx prettier --config-precedence prefer-file --write . && eslint . --fix",
     "pretest": "npx eslint-config-prettier .eslintrc.json",
-    "test": "eslint **/*.js",
+    "test": "eslint .",
     "prepare": "husky install ./.github/husky"
   },
   "dependencies": {
@@ -44,7 +44,6 @@
   "devDependencies": {
     "@github/prettier-config": "^0.0.4",
     "@vercel/ncc": "^0.31.1",
-    "copyfiles": "^2.4.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-github": "^4.3.0",

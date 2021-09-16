@@ -1,7 +1,11 @@
+import {dirname, join} from 'path'
 import {Octokit} from '@octokit/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
+import {fileURLToPath} from 'url'
 import {readFileSync} from 'fs'
-import {resolve} from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const MyOctokit = Octokit.plugin(enterpriseCloud)
 const SUPPORTED_LANGS = ['go', 'javascript', 'csharp', 'python', 'cpp', 'java']
@@ -59,10 +63,10 @@ class ActionScanner {
       this.owner = data.owner.login
       this.repo = data.name
       this.ref = data.parent.default_branch
+
       const language = data.parent.language || undefined
       this.language = language === 'TypeScript' ? 'javascript' : language
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
     // sleep 10 seconds for async forking
@@ -116,7 +120,6 @@ class ActionScanner {
       )
       this.oid = oid || sha
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
   }
@@ -128,20 +131,19 @@ class ActionScanner {
   async addCodeQLWorkflow() {
     const {octokit, owner, oid, repo, ref, language} = this
     try {
-      const workflowTpl = 'templates/codeql-template.yml'
-      const workflowBuffer = readFileSync(resolve('./', workflowTpl), 'utf8')
+      const workflowTpl = 'codeql-template.tmpl'
+      const workflowBuffer = readFileSync(join(__dirname, workflowTpl), 'utf8')
       const _content = workflowBuffer.toString('base64')
       const workflowContent = _content.replace(
-        `          # __languages__ will get replaced automatically
-            languages: __languages__
-      `,
+        `
+          languages: __languages__`,
         language && SUPPORTED_LANGS.includes(language)
-          ? `          languages: ${language}
-      `
+          ? `
+          languages: ${language}`
           : ''
       )
-      const configTpl = 'templates/codeql-config.yml'
-      const configContent = readFileSync(resolve('./', configTpl), 'utf8')
+      const configTpl = 'codeql-config.tmpl'
+      const configContent = readFileSync(join(__dirname, configTpl), 'utf8')
 
       this.path = '.github/workflows/codeql-scanner.yml'
 
@@ -163,7 +165,7 @@ class ActionScanner {
               additions: [{
                 path: $workflowPath, contents: $workflow
               }, {
-                path: "github/config/codeql-config.yml", contents: $config
+                path: ".github/config/codeql-config.yml", contents: $config
               }]
             }
           }) {
@@ -183,7 +185,6 @@ class ActionScanner {
       // wait 5 seconds
       await this.wait(5000)
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
   }
@@ -219,7 +220,6 @@ class ActionScanner {
       // wait for the scanner to finish
       if (run_id > 0) await this.waitForScan(run_id)
     } catch (error) {
-      octokit.log.error(error.message, error)
       throw error
     }
   }

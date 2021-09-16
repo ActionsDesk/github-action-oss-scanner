@@ -1,5 +1,5 @@
-import {endGroup, getInput, info, setFailed, setOutput, startGroup} from '@actions/core'
-import ActionScanner from './src/utils/scanner'
+import {endGroup, error, getInput, info, setFailed, setOutput, startGroup} from '@actions/core'
+import ActionScanner from './src/scanner'
 
 // action
 ;(async () => {
@@ -36,7 +36,8 @@ import ActionScanner from './src/utils/scanner'
     endGroup()
 
     setOutput('oss-scanner-result', JSON.stringify(alerts, null, 2))
-  } catch (error) {
-    setFailed(error.message)
+  } catch (err) {
+    error(err)
+    setFailed(err.message)
   }
 })()
