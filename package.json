@@ -1,7 +1,6 @@
 {
   "name": "github-action-oss-scanner",
   "version": "0.0.0-development",
-  "type": "module",
   "description": "",
   "keywords": [
     "github-enterprise-cloud",
@@ -30,10 +29,10 @@
   "exports": "utils/scanner.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "npx @vercel/ncc build src/index.js --out dist && copyfiles -Vu 1 src/templates/**/* dist/templates",
-    "format": "npx prettier --config-precedence prefer-file --write **/*.{js,cjs,json,md,yml} && eslint . --fix",
+    "build": "npx @vercel/ncc build action.js --out dist && copyfiles -Vu 1 src/templates/**/* dist/templates",
+    "format": "npx prettier --config-precedence prefer-file --write **/**.{js,cjs,json,md,yml} && eslint . --fix",
     "pretest": "npx eslint-config-prettier .eslintrc.json",
-    "test": "eslint src/**/*.js",
+    "test": "eslint **/*.js",
     "prepare": "husky install ./.github/husky"
   },
   "dependencies": {

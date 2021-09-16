@@ -1,5 +1,5 @@
 import {endGroup, getInput, info, setFailed, setOutput, startGroup} from '@actions/core'
-import ActionScanner from './utils/scanner'
+import ActionScanner from './src/utils/scanner'
 
 // action
 ;(async () => {
