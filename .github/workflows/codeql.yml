@@ -18,7 +18,10 @@ jobs:
   codeql:
     runs-on: ubuntu-latest
 
-    permissions: read-all
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
     env:
       CI: true
